@@ -1,0 +1,775 @@
+commonds to execute :
+Data is from  https://www.ecdc.europa.eu/en/publications-data/covid-19-testing
+
+sample data 
+
+{
+    "country": "Sweden",
+    "country_code": "SE",
+    "year_week": "2023-W41",
+    "level": "national",
+    "region": "SE",
+    "region_name": "Sweden",
+    "new_cases": 964,
+    "tests_done": 5555,
+    "population": 10452326,
+    "testing_rate": 53.1461,
+    "positivity_rate": 17.3537,
+    "testing_data_source": "TESSy COVID-19"
+  }
+
+mongoimport --db coronodb --collection coronaData --file /Downloads/covid.json --jsonArray
+
+1) Total number of cases
+
+db.coronaData.aggregate([
+    { $group: { _id: "$country", totalCases: { $sum: "$new_cases" } } }
+])
+
+
+[
+  { _id: 'France', totalCases: 40086999 },
+  { _id: 'Hungary', totalCases: 2211217 },
+  { _id: 'Denmark', totalCases: 3108868 },
+  { _id: 'Germany', totalCases: 38437756 },
+  { _id: 'Luxembourg', totalCases: 386030 },
+  { _id: 'Greece', totalCases: 5464525 },
+  { _id: 'Latvia', totalCases: 976798 },
+  { _id: 'Ireland', totalCases: 1724146 },
+  { _id: 'Malta', totalCases: 120705 },
+  { _id: 'Norway', totalCases: 1492590 },
+  { _id: 'Sweden', totalCases: 2721846 },
+  { _id: 'Netherlands', totalCases: 8620051 },
+  { _id: 'Portugal', totalCases: 5631629 },
+  { _id: 'Poland', totalCases: 6541423 },
+  { _id: 'Slovakia', totalCases: 2418276 },
+  { _id: 'Finland', totalCases: 1485555 },
+  { _id: 'Romania', totalCases: 3484830 },
+  { _id: 'Czechia', totalCases: 4660597 },
+  { _id: 'Liechtenstein', totalCases: 21310 },
+  { _id: 'Bulgaria', totalCases: 1312102 }
+]
+
+
+
+
+2) Total number of tests done per country
+db.coronaData.aggregate([
+    { $group: { _id: "$country", totalTests: { $sum: "$tests_done" } } }
+])
+
+
+
+[
+  { _id: 'France', totalTests: 297154154 },
+  { _id: 'Hungary', totalTests: 7767460 },
+  { _id: 'Denmark', totalTests: 122785363 },
+  { _id: 'Germany', totalTests: 151344708 },
+  { _id: 'Luxembourg', totalTests: 4609109 },
+  { _id: 'Greece', totalTests: 214230109 },
+  { _id: 'Latvia', totalTests: 1845050 },
+  { _id: 'Ireland', totalTests: 13211935 },
+  { _id: 'Malta', totalTests: 2181540 },
+  { _id: 'Norway', totalTests: 16229280 },
+  { _id: 'Sweden', totalTests: 17706249 },
+  { _id: 'Netherlands', totalTests: 51989312 },
+  { _id: 'Portugal', totalTests: 163683 },
+  { _id: 'Poland', totalTests: 39403956 },
+  { _id: 'Slovakia', totalTests: 17657577 },
+  { _id: 'Finland', totalTests: 10814838 },
+  { _id: 'Romania', totalTests: 25342706 },
+  { _id: 'Czechia', totalTests: 55815173 },
+  { _id: 'Liechtenstein', totalTests: 116276 },
+  { _id: 'Bulgaria', totalTests: 11314568 }
+]
+
+3)Average positive rate per country
+db.coronaData.aggregate([
+    { $group: { _id: "$country", averagePositivityRate: { $avg: "$positivity_rate" } } }
+])
+
+
+[
+  { _id: 'France', averagePositivityRate: 11.562601162790697 },
+  { _id: 'Hungary', averagePositivityRate: 16.50119419354839 },
+  { _id: 'Denmark', averagePositivityRate: 7.546674842767295 },
+  { _id: 'Germany', averagePositivityRate: 22.621659210526317 },
+  { _id: 'Luxembourg', averagePositivityRate: 15.869833333333332 },
+  { _id: 'Greece', averagePositivityRate: 3.5771593750000004 },
+  { _id: 'Latvia', averagePositivityRate: 11.665465656565658 },
+  { _id: 'Ireland', averagePositivityRate: 10.87797474226804 },
+  { _id: 'Malta', averagePositivityRate: 5.173798314606741 },
+  { _id: 'Norway', averagePositivityRate: 8.734105208333334 },
+  { _id: 'Sweden', averagePositivityRate: 14.252111180124222 },
+  { _id: 'Netherlands', averagePositivityRate: 17.85918829787234 },
+  { _id: 'Portugal', averagePositivityRate: 21.758744999999998 },
+  { _id: 'Poland', averagePositivityRate: 12.860959685863874 },
+  { _id: 'Slovakia', averagePositivityRate: 12.93319705882353 },
+  { _id: 'Finland', averagePositivityRate: 18.86707463768116 },
+  { _id: 'Romania', averagePositivityRate: 18.5261515625 },
+  { _id: 'Czechia', averagePositivityRate: 12.094428061224491 },
+  { _id: 'Liechtenstein', averagePositivityRate: 18.594986309523808 },
+  { _id: 'Bulgaria', averagePositivityRate: 10.133108522727271 }
+
+
+4)max new cases in specific week
+
+db.coronaData.find().sort({ "new_cases": -1 }).limit(1)
+
+[
+  {
+    _id: ObjectId("654cbe012aba2edd4db60d91"),
+    country: 'France',
+    country_code: 'FR',
+    year_week: '2022-W03',
+    level: 'national',
+    region: 'FR',
+    region_name: 'France',
+    new_cases: 2486551,
+    tests_done: 7953174,
+    population: 67871925,
+    testing_rate: 11717.9143,
+    positivity_rate: 31.2649,
+    testing_data_source: 'TESSy COVID-19'
+  }
+]
+
+
+
+5) min new cases in specific week
+
+db.coronaData.find().sort({ "new_cases": 1 }).limit(1)
+[
+  {
+    _id: ObjectId("654cbe012aba2edd4db6061e"),
+    country: 'Austria',
+    country_code: 'AT',
+    year_week: '2020-W01',
+    level: 'national',
+    region: 'AT',
+    region_name: 'Austria',
+    population: 8978929
+  }
+]
+
+
+
+6) max number of tests done in a week
+
+db.coronaData.find().sort({ "tests_done": -1 }).limit(1)
+
+[
+  {
+    _id: ObjectId("654cbe012aba2edd4db60d90"),
+    country: 'France',
+    country_code: 'FR',
+    year_week: '2022-W02',
+    level: 'national',
+    region: 'FR',
+    region_name: 'France',
+    new_cases: 2028035,
+    tests_done: 8832046,
+    population: 67871925,
+    testing_rate: 13012.812,
+    positivity_rate: 22.9622,
+    testing_data_source: 'TESSy COVID-19'
+  }
+]
+
+
+7) minimum number of tests done in a week
+
+db.coronaData.find().sort({ "tests_done": 1 }).limit(1)
+
+[
+  {
+    _id: ObjectId("654cbe012aba2edd4db6061e"),
+    country: 'Austria',
+    country_code: 'AT',
+    year_week: '2020-W01',
+    level: 'national',
+    region: 'AT',
+    region_name: 'Austria',
+    population: 8978929
+  }
+]
+
+
+8) Average new cases per week across all countries
+
+db.coronaData.aggregate([
+    { $group: { _id: "$year_week", averageNewCases: { $avg: "$new_cases" } } }
+])
+
+
+  { _id: '2021-W03', averageNewCases: 31451.566666666666 },
+  { _id: '2020-W28', averageNewCases: 975.4333333333333 },
+  { _id: '2022-W26', averageNewCases: 84215.7 },
+  { _id: '2023-W24', averageNewCases: 1141.6333333333334 },
+  { _id: '2022-W42', averageNewCases: 46747.36666666667 },
+  { _id: '2023-W28', averageNewCases: 367.7692307692308 },
+  { _id: '2020-W09', averageNewCases: 98.83333333333333 },
+  { _id: '2023-W31', averageNewCases: 680.0384615384615 },
+  { _id: '2021-W01', averageNewCases: 36552.23333333333 },
+  { _id: '2020-W30', averageNewCases: 1702.9333333333334 },
+  { _id: '2023-W07', averageNewCases: 8438.9 },
+  { _id: '2021-W18', averageNewCases: 18731.533333333333 },
+  { _id: '2020-W04', averageNewCases: 2.857142857142857 },
+  { _id: '2023-W22', averageNewCases: 1832.3 },
+  { _id: '2023-W25', averageNewCases: 923.4666666666667 },
+  { _id: '2022-W47', averageNewCases: 28381.366666666665 },
+  { _id: '2022-W23', averageNewCases: 34203.46666666667 },
+  { _id: '2021-W39', averageNewCases: 11844.566666666668 },
+  { _id: '2022-W03', averageNewCases: 285000.6 },
+  { _id: '2023-W11', averageNewCases: 7256.566666666667 }
+9) country with highest new caes
+
+db.coronaData.find().sort({ "new_cases": -1 }).limit(1)
+
+[
+  {
+    _id: ObjectId("654cbe012aba2edd4db60d91"),
+    country: 'France',
+    country_code: 'FR',
+    year_week: '2022-W03',
+    level: 'national',
+    region: 'FR',
+    region_name: 'France',
+    new_cases: 2486551,
+    tests_done: 7953174,
+    population: 67871925,
+    testing_rate: 11717.9143,
+    positivity_rate: 31.2649,
+    testing_data_source: 'TESSy COVID-19'
+  }
+]
+
+
+10) analysis of new cases for swedan
+
+db.coronaData.find({ "country": "Sweden" }).sort({ "year_week": 1 })
+[
+  {
+    _id: ObjectId("654cbe012aba2edd4db61cc5"),
+    country: 'Sweden',
+    country_code: 'SE',
+    year_week: '2020-W01',
+    level: 'national',
+    region: 'SE',
+    region_name: 'Sweden',
+    population: 10452326
+  },
+  {
+    _id: ObjectId("654cbe012aba2edd4db61cc8"),
+    country: 'Sweden',
+    country_code: 'SE',
+    year_week: '2020-W02',
+    level: 'national',
+    region: 'SE',
+    region_name: 'Sweden',
+
+
+
+11)comparison of new cases in different contries
+
+db.coronaData.aggregate([
+    { $group: { _id: "$country", 
+                totalCases: { $sum: "$new_cases" }, 
+                totalTests: { $sum: "$tests_done" }, 
+                averagePositivityRate: { $avg: "$positivity_rate" } 
+            } 
+    }
+])
+
+[
+  {
+    _id: 'Cyprus',
+    totalCases: 669446,
+    totalTests: 26963144,
+    averagePositivityRate: 3.228623529411765
+  },
+  {
+    _id: 'Croatia',
+    totalCases: 1444832,
+    totalTests: 10282501,
+    averagePositivityRate: 12.767515706806282
+  },
+  {
+    _id: 'Austria',
+    totalCases: 6084155,
+    totalTests: 229496845,
+    averagePositivityRate: 4.714312871287129
+  },
+  {
+    _id: 'Iceland',
+    totalCases: 209328,
+    totalTests: 1699268,
+    averagePositivityRate: 17.176994936708862
+  },
+
+12) Percentage change in new cases compared to the previous week for each country:
+
+
+db.coronaData.aggregate([
+    { $group: { _id: "$country", 
+                newCases: { $push: "$new_cases" } 
+            } 
+    },
+    { $project: { 
+        percentageChange: { $subtract: [ { $arrayElemAt: ["$newCases", 0] }, { $arrayElemAt: ["$newCases", 1] } ] } 
+      } 
+    }
+])
+
+
+[
+  { _id: 'Cyprus', percentageChange: -59 },
+  { _id: 'Croatia', percentageChange: 0 },
+  { _id: 'Austria', percentageChange: -103 },
+  { _id: 'Lithuania', percentageChange: -10 },
+  { _id: 'Iceland', percentageChange: 8 },
+  { _id: 'Italy', percentageChange: -1 },
+  { _id: 'Bulgaria', percentageChange: -43 },
+  { _id: 'Belgium', percentageChange: 2 },
+  { _id: 'Estonia', percentageChange: -5405 },
+  { _id: 'Slovenia', percentageChange: -210 },
+  { _id: 'Spain', percentageChange: -1 },
+  { _id: 'Romania', percentageChange: -11 },
+  { _id: 'Czechia', percentageChange: 0 },
+  { _id: 'Liechtenstein', percentageChange: -11 },
+  { _id: 'Netherlands', percentageChange: 292 },
+  { _id: 'Portugal', percentageChange: 0 },
+  { _id: 'Poland', percentageChange: -103 },
+  { _id: 'Sweden', percentageChange: -837 },
+  { _id: 'Slovakia', percentageChange: 0 },
+  { _id: 'Finland', percentageChange: -28 }
+]
+
+
+13)Projection analysis for new cases based on historical data for each country:
+
+
+db.coronaData.aggregate([
+    { $group: { _id: "$country", 
+                newCases: { $push: "$new_cases" } 
+            } 
+    },
+    { $project: { 
+        historicalData: "$newCases" 
+      } 
+    }
+])
+
+[
+  { _id: 'Cyprus', percentageChange: -59 },
+  { _id: 'Croatia', percentageChange: 0 },
+  { _id: 'Austria', percentageChange: -103 },
+  { _id: 'Lithuania', percentageChange: -10 },
+  { _id: 'Iceland', percentageChange: 8 },
+  { _id: 'Italy', percentageChange: -1 },
+  { _id: 'Bulgaria', percentageChange: -43 },
+  { _id: 'Belgium', percentageChange: 2 },
+  { _id: 'Estonia', percentageChange: -5405 },
+  { _id: 'Slovenia', percentageChange: -210 },
+  { _id: 'Spain', percentageChange: -1 },
+  { _id: 'Romania', percentageChange: -11 },
+  { _id: 'Czechia', percentageChange: 0 },
+  { _id: 'Liechtenstein', percentageChange: -11 },
+  { _id: 'Netherlands', percentageChange: 292 },
+  { _id: 'Portugal', percentageChange: 0 },
+  { _id: 'Poland', percentageChange: -103 },
+  { _id: 'Sweden', percentageChange: -837 },
+  { _id: 'Slovakia', percentageChange: 0 },
+  { _id: 'Finland', percentageChange: -28 }
+]
+
+
+14) Trend analysis of positivity rate over a specific period for Sweden
+
+db.coronaData.find({ country: "Sweden", year_week: { $gte: "2023-W21", $lte: "2023-W41" } })  
+
+[
+  {
+    _id: ObjectId("654cbe012aba2edd4db61d77"),
+    country: 'Sweden',
+    country_code: 'SE',
+    year_week: '2023-W22',
+    level: 'national',
+    region: 'SE',
+    region_name: 'Sweden',
+    new_cases: 518,
+    tests_done: 4996,
+    population: 10452326,
+    testing_rate: 47.798,
+    positivity_rate: 10.3683,
+    testing_data_source: 'TESSy COVID-19'
+  },
+  {
+
+
+15. country with lowest positivity rate
+
+db.coronaData.aggregate([
+    {
+        $sort: { positivity_rate: 1 }
+    },
+    {
+        $limit: 1
+    }
+])
+
+[
+  {
+    _id: ObjectId("654cbe012aba2edd4db6061e"),
+    country: 'Austria',
+    country_code: 'AT',
+    year_week: '2020-W01',
+    level: 'national',
+    region: 'AT',
+    region_name: 'Austria',
+    population: 8978929
+  }
+]
+
+16.  Average tests done per week for each country
+
+db.coronaData.aggregate([
+    {
+        $group: {
+            _id: "$country",
+            averageTestsDone: { $avg: "$tests_done" }
+        }
+    }
+])
+
+[
+  { _id: 'Cyprus', averageTestsDone: 173955.76774193547 },
+  { _id: 'Croatia', averageTestsDone: 53277.20725388601 },
+  { _id: 'Austria', averageTestsDone: 2272245.99009901 },
+  { _id: 'Iceland', averageTestsDone: 10754.860759493671 },
+  { _id: 'Lithuania', averageTestsDone: 41085.36734693877 },
+  { _id: 'Italy', averageTestsDone: 1894123.8305084745 },
+  { _id: 'Bulgaria', averageTestsDone: 63564.988764044945 },
+  { _id: 'Belgium', averageTestsDone: 151927.47260273973 },
+  { _id: 'Estonia', averageTestsDone: 20202.8125 },
+  { _id: 'Slovenia', averageTestsDone: 106615.35789473684 },
+  { _id: 'Spain', averageTestsDone: 613688.3617021276 },
+  { _id: 'Romania', averageTestsDone: 128643.17766497462 },
+  { _id: 'Czechia', averageTestsDone: 284771.2908163265 },
+  { _id: 'Liechtenstein', averageTestsDone: 692.1190476190476 },
+  { _id: 'Netherlands', averageTestsDone: 276538.89361702127 },
+  { _id: 'Portugal', averageTestsDone: 8184.15 },
+  { _id: 'Poland', averageTestsDone: 206303.43455497382 },
+  { _id: 'Sweden', averageTestsDone: 109976.70186335404 },
+  { _id: 'Slovakia', averageTestsDone: 103868.1 },
+  { _id: 'Finland', averageTestsDone: 78368.39130434782 }
+]
+
+
+17.  Find countries with new cases less than 1000:
+
+db.coronaData.aggregate([
+    {
+        $match: { new_cases: { $lt: 1000 } }
+    },
+    {
+        $group: { _id: "$country", totalCases: { $sum: "$new_cases" } }
+    }
+])
+
+[
+  { _id: 'Cyprus', totalCases: 24300 },
+  { _id: 'Croatia', totalCases: 13073 },
+  { _id: 'Austria', totalCases: 11985 },
+  { _id: 'Iceland', totalCases: 32520 },
+  { _id: 'Lithuania', totalCases: 21026 },
+  { _id: 'Italy', totalCases: 177 },
+  { _id: 'Bulgaria', totalCases: 31574 },
+  { _id: 'Belgium', totalCases: 10057 },
+  { _id: 'Estonia', totalCases: 30014 },
+  { _id: 'Slovenia', totalCases: 14880 },
+  { _id: 'Spain', totalCases: 148 },
+  { _id: 'Romania', totalCases: 9658 },
+  { _id: 'Czechia', totalCases: 15734 },
+  { _id: 'Liechtenstein', totalCases: 17859 },
+  { _id: 'Netherlands', totalCases: 12038 },
+  { _id: 'Portugal', totalCases: 1062 },
+  { _id: 'Poland', totalCases: 11759 },
+  { _id: 'Sweden', totalCases: 18161 },
+  { _id: 'Slovakia', totalCases: 23380 },
+  { _id: 'Finland', totalCases: 26668 }
+]
+
+
+18.  Find countries with testing rates less than or equal to 50:
+
+db.coronaData.aggregate([
+    {
+        $match: { testing_rate: { $lte: 50 } }
+    },
+    {
+        $group: { _id: "$country", totalTests: { $sum: "$tests_done" } }
+    }
+])
+[
+  { _id: 'Latvia', totalTests: 13055 },
+  { _id: 'Croatia', totalTests: 843 },
+  { _id: 'Iceland', totalTests: 3072 },
+  { _id: 'Ireland', totalTests: 1790 },
+  { _id: 'Lithuania', totalTests: 8600 },
+  { _id: 'Luxembourg', totalTests: 1793 },
+  { _id: 'Malta', totalTests: 156 },
+  { _id: 'Italy', totalTests: 49589 },
+  { _id: 'Norway', totalTests: 1251 },
+  { _id: 'Netherlands', totalTests: 110056 },
+  { _id: 'Spain', totalTests: 19834 },
+  { _id: 'Poland', totalTests: 223790 },
+  { _id: 'Sweden', totalTests: 76909 },
+  { _id: 'Slovakia', totalTests: 28442 },
+  { _id: 'Finland', totalTests: 4650 },
+  { _id: 'Romania', totalTests: 86738 },
+  { _id: 'Liechtenstein', totalTests: 170 },
+  { _id: 'Czechia', totalTests: 45475 },
+  { _id: 'Bulgaria', totalTests: 3130 },
+  { _id: 'Hungary', totalTests: 64806 }
+]
+
+
+
+19. Find countries with positivity rates greater than 10:
+
+db.coronaData.aggregate([
+    {
+        $match: { positivity_rate: { $gt: 10 } }
+    },
+    {
+        $group: { _id: "$country", maxPositivityRate: { $max: "$positivity_rate" } }
+    }
+])
+
+[
+  { _id: 'Cyprus', maxPositivityRate: 12.8566 },
+  { _id: 'Croatia', maxPositivityRate: 70.4276 },
+  { _id: 'Austria', maxPositivityRate: 22.4346 },
+  { _id: 'Lithuania', maxPositivityRate: 95.029 },
+  { _id: 'Iceland', maxPositivityRate: 72.7521 },
+  { _id: 'Italy', maxPositivityRate: 28.6352 },
+  { _id: 'Bulgaria', maxPositivityRate: 40.082 },
+  { _id: 'Belgium', maxPositivityRate: 43.3846 },
+  { _id: 'Estonia', maxPositivityRate: 58.9528 },
+  { _id: 'Slovenia', maxPositivityRate: 29.8486 },
+  { _id: 'Spain', maxPositivityRate: 39.9512 },
+  { _id: 'Romania', maxPositivityRate: 89.2544 },
+  { _id: 'Czechia', maxPositivityRate: 38.3085 },
+  { _id: 'Liechtenstein', maxPositivityRate: 65.0602 },
+  { _id: 'Netherlands', maxPositivityRate: 57.3951 },
+  { _id: 'Portugal', maxPositivityRate: 35.026 },
+  { _id: 'Poland', maxPositivityRate: 43.2431 },
+  { _id: 'Sweden', maxPositivityRate: 62.4348 },
+  { _id: 'Slovakia', maxPositivityRate: 60.9938 },
+  { _id: 'Finland', maxPositivityRate: 49.5054 }
+]
+
+
+20.Find countries with population greater than or equal to 10 million
+
+db.coronaData.aggregate([
+    {
+        $match: { population: { $gte: 10000000 } }
+    },
+    {
+        $group: { _id: "$country", totalPopulation: { $sum: "$population" } }
+    }
+])
+
+[
+  { _id: 'Netherlands', totalPopulation: Long("3518134400") },
+  { _id: 'France', totalPopulation: Long("13574385000") },
+  { _id: 'Belgium', totalPopulation: Long("2323524600") },
+  { _id: 'Poland', totalPopulation: Long("7530849400") },
+  { _id: 'Portugal', totalPopulation: 2070408400 },
+  { _id: 'Sweden', totalPopulation: 2090465200 },
+  { _id: 'Spain', totalPopulation: Long("9486578600") },
+  { _id: 'Germany', totalPopulation: Long("16647424800") },
+  { _id: 'Greece', totalPopulation: 2091956400 },
+  { _id: 'Romania', totalPopulation: Long("3808491000") },
+  { _id: 'Czechia', totalPopulation: 2103341400 },
+  { _id: 'Italy', totalPopulation: Long("11806026600") }
+]
+
+
+21 Find countries with both new cases and testing rates greater than 500 and 50 respectively
+
+db.coronaData.aggregate([
+    {
+        $match: {
+            $and: [
+                { new_cases: { $gt: 500 } },
+                { testing_rate: { $gt: 50 } }
+            ]
+        }
+    },
+    {
+        $group: { _id: "$country", totalCases: { $sum: "$new_cases" }, totalTests: { $sum: "$tests_done" } }
+    }
+])
+
+[
+  { _id: 'Cyprus', totalCases: 659710, totalTests: 26088918 },
+  { _id: 'Croatia', totalCases: 1415049, totalTests: 10084927 },
+  { _id: 'Austria', totalCases: 5179822, totalTests: 229496845 },
+  { _id: 'Iceland', totalCases: 194229, totalTests: 1051974 },
+  { _id: 'Lithuania', totalCases: 307992, totalTests: 3731243 },
+  { _id: 'Italy', totalCases: 19169367, totalTests: 223457023 },
+  { _id: 'Bulgaria', totalCases: 1301717, totalTests: 10869876 },
+  { _id: 'Belgium', totalCases: 3621724, totalTests: 22135228 },
+  { _id: 'Estonia', totalCases: 579731, totalTests: 3009745 },
+  { _id: 'Slovenia', totalCases: 1337893, totalTests: 19190261 },
+  { _id: 'Spain', totalCases: 12559443, totalTests: 86510225 },
+  { _id: 'Romania', totalCases: 3441941, totalTests: 24352755 },
+  { _id: 'Czechia', totalCases: 4653616, totalTests: 55443650 },
+  { _id: 'Liechtenstein', totalCases: 9276, totalTests: 19796 },
+  { _id: 'Netherlands', totalCases: 8606290, totalTests: 51805769 },
+  { _id: 'Portugal', totalCases: 36590, totalTests: 163683 },
+  { _id: 'Poland', totalCases: 6522452, totalTests: 39180166 },
+  { _id: 'Sweden', totalCases: 2621677, totalTests: 17629340 },
+  { _id: 'Slovakia', totalCases: 2390755, totalTests: 16530839 },
+  { _id: 'Finland', totalCases: 1466251, totalTests: 10810188 }
+]
+
+22 Identify the regions where the testing rate is below the average testing rate for Sweden
+
+db.coronaData.aggregate([
+    {
+        $match: { country: "Sweden" }
+    },
+    {
+        $group: { _id: "$region_name", averageTestingRate: { $avg: "$testing_rate" } }
+    }
+])
+
+[ { _id: 'Sweden', averageTestingRate: 1052.1744329192545 } ]
+
+
+23. Calculate the average positivity rate for each level (national, regional, etc.) in each country
+
+db.coronaData.aggregate([
+    {
+        $group: { _id: { country: "$country", level: "$level" }, averagePositivityRate: { $avg: "$positivity_rate" } }
+    }
+])
+
+[
+  {
+    _id: { country: 'Estonia', level: 'national' },
+    averagePositivityRate: 10.875709659090909
+  },
+  {
+    _id: { country: 'Croatia', level: 'national' },
+    averagePositivityRate: 12.767515706806282
+  },
+  {
+    _id: { country: 'Malta', level: 'national' },
+    averagePositivityRate: 5.173798314606741
+  },
+  {
+    _id: { country: 'Hungary', level: 'national' },
+    averagePositivityRate: 16.50119419354839
+  },
+  {
+    _id: { country: 'Slovenia', level: 'national' },
+    averagePositivityRate: 9.209891578947369
+  },
+
+
+24.  Find the weeks with the highest and lowest new cases for each country
+
+
+db.coronaData.aggregate([
+    {
+        $group: { _id: { country: "$country", week: "$year_week" }, maxCases: { $max: "$new_cases" }, minCases: { $min: "$new_cases" } }
+    }
+])
+
+  {
+    _id: { country: 'Hungary', week: '2021-W49' },
+    maxCases: 41371,
+    minCases: 41371
+  },
+  {
+    _id: { country: 'Liechtenstein', week: '2023-W37' },
+    maxCases: null,
+    minCases: null
+  },
+  {
+    _id: { country: 'Poland', week: '2022-W52' },
+    maxCases: 3112,
+    minCases: 3112
+  },
+  {
+    _id: { country: 'Slovakia', week: '2020-W05' },
+    maxCases: 0,
+    minCases: 0
+  },
+  {
+    _id: { country: 'Estonia', week: '2020-W50' },
+    maxCases: 3156,
+    minCases: 3156
+  }
+]
+
+25. Calculate the mimimum postiverate per country
+
+db.coronaData.aggregate([
+    {
+        $group: {
+            _id: "$country",
+            minPositivityRate: { $min: "$positivity_rate" }
+        }
+    }
+])
+
+
+
+
+[
+  { _id: 'Ireland', minPositivityRate: 0 },
+  { _id: 'Estonia', minPositivityRate: 0.1684 },
+  { _id: 'Finland', minPositivityRate: 0.5604 },
+  { _id: 'Liechtenstein', minPositivityRate: 0 },
+  { _id: 'Norway', minPositivityRate: 0.177 },
+  { _id: 'Belgium', minPositivityRate: 0.6467 },
+  { _id: 'Sweden', minPositivityRate: 1.8736 },
+  { _id: 'Greece', minPositivityRate: 0.0942 },
+  { _id: 'Hungary', minPositivityRate: 0.1421 },
+  { _id: 'Latvia', minPositivityRate: 0 },
+  { _id: 'Austria', minPositivityRate: 0.0298 },
+  { _id: 'Germany', minPositivityRate: 0.473 },
+  { _id: 'Czechia', minPositivityRate: 0 },
+  { _id: 'Luxembourg', minPositivityRate: 0.0942 },
+  { _id: 'Italy', minPositivityRate: 0.4357 },
+  { _id: 'Lithuania', minPositivityRate: 0.3271 },
+  { _id: 'Malta', minPositivityRate: 0.0345 },
+  { _id: 'Romania', minPositivityRate: 0.184 },
+  { _id: 'Bulgaria', minPositivityRate: 0.463 },
+  { _id: 'Netherlands', minPositivityRate: 0.5919 }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
